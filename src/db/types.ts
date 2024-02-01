@@ -23,3 +23,13 @@ export enum Resolutions {
     P1440 = 1440,
     P2160 = 2160,
 }
+
+export type GetVideosRequestBody = Pick<VideoType, 'title' | 'author' | 'availableResolutions'>
+
+type ErrorsMessagesType = {
+    message: string
+    field: string
+}
+export type ErrorsType = {
+    errorsMessages: ErrorsMessagesType[]
+}

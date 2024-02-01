@@ -6,8 +6,8 @@ import {testRouter} from "./routers/test-router";
 const PORT = 4200
 
 export const PATHS = {
-    videos: '/hometask_01/api/videos',
-    __test__: '/hometask_01/api/testing/all-data'
+    videos: '/videos',
+    __test__: '/testing/all-data'
 }
 
 export const HTTP_STATUS = {
@@ -20,10 +20,11 @@ export const HTTP_STATUS = {
 
 export const app = express()
 
+app.use(express.json())
 app.use(PATHS.__test__, testRouter(db))
 app.use(PATHS.videos, videosRouter(db))
 
 app.listen(PORT, () => {
-    console.log(`App is staring on ${PORT}`)
+    console.log(`App is starting on ${PORT}`)
 })
 
