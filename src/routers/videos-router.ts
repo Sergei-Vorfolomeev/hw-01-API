@@ -11,8 +11,7 @@ export const videosRouter = (db: DBType) => {
     })
 
     router.post('/', (req: Request<any, VideoType, GetVideosRequestBody>, res: Response<VideoType | ErrorsType>) => {
-        const validator = fieldValidator<GetVideosRequestBody>('title', 'author', 'availableResolutions')
-        const errors = validator(req.body)
+        const errors = fieldValidator<GetVideosRequestBody>(req.body, 'title', 'author', 'availableResolutions')
             if (errors.errorsMessages.length) {
                 res.status(HTTP_STATUS.BAD_REQUEST_400).send(errors)
             } else {
