@@ -10,6 +10,16 @@ export const videosRouter = (db: DBType) => {
         return res.send(db.videos)
     })
 
+    router.get('/:id', (req: Request, res: Response) => {
+        const videoId = +req.params.id
+        const video = db.videos.find(v => v.id === videoId)
+        if (video) {
+            res.status(HTTP_STATUS.OK_200).send(video)
+        } else {
+            res.sendStatus(HTTP_STATUS.NOT_FOUND_404)
+        }
+    })
+
     router.post('/', (req: Request<any, VideoType, GetVideosRequestBody>, res: Response<VideoType | ErrorsType>) => {
         const errors = fieldValidator<GetVideosRequestBody>(req.body, 'title', 'author', 'availableResolutions')
             if (errors.errorsMessages.length) {
@@ -32,9 +42,8 @@ export const videosRouter = (db: DBType) => {
 
     router.delete('/:id', (req: Request, res: Response) => {
         const videoId = +req.params.id
-        const video = db.videos.find(v => v.id === videoId)
-        if (video) {
-            const index = db.videos.indexOf(video)
+        const index = db.videos.findIndex(v => v.id === videoId)
+        if (index > -1) {
             db.videos.splice(index, 1)
             res.sendStatus(HTTP_STATUS.NO_CONTENT_204)
         } else {
