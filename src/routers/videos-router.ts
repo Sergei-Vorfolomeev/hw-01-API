@@ -1,5 +1,5 @@
 import {Request, Response, Router} from "express";
-import {DBType, ErrorsType, GetVideosRequestBody, VideoType} from "../db/types";
+import {DBType, ErrorsType, CreateVideoInputModel, VideoType, UpdateVideoInputModel} from "../db/types";
 import {HTTP_STATUS} from "../index";
 import {fieldValidator} from "../utils/field-validator";
 
@@ -20,8 +20,8 @@ export const videosRouter = (db: DBType) => {
         }
     })
 
-    router.post('/', (req: Request<any, VideoType, GetVideosRequestBody>, res: Response<VideoType | ErrorsType>) => {
-        const errors = fieldValidator<GetVideosRequestBody>(req.body, 'title', 'author', 'availableResolutions')
+    router.post('/', (req: Request<any, VideoType, CreateVideoInputModel>, res: Response<VideoType | ErrorsType>) => {
+        const errors = fieldValidator<CreateVideoInputModel>(req.body, 'title', 'author')
             if (errors.errorsMessages.length) {
                 res.status(HTTP_STATUS.BAD_REQUEST_400).send(errors)
             } else {
@@ -46,6 +46,22 @@ export const videosRouter = (db: DBType) => {
         if (index > -1) {
             db.videos.splice(index, 1)
             res.sendStatus(HTTP_STATUS.NO_CONTENT_204)
+        } else {
+            res.sendStatus(HTTP_STATUS.NOT_FOUND_404)
+        }
+    })
+
+    router.put('/:id', (req: Request<any, VideoType, UpdateVideoInputModel>, res: Response<VideoType | ErrorsType>) => {
+        const errors = fieldValidator<UpdateVideoInputModel>(req.body, 'title', 'author')
+        const videoId = +req.params.id
+        const video = db.videos.find(v => v.id === videoId)
+        if (video) {
+            if (!errors.errorsMessages.length) {
+                Object.assign(video, req.body)
+                res.sendStatus(HTTP_STATUS.NO_CONTENT_204)
+            } else {
+                res.status(HTTP_STATUS.BAD_REQUEST_400).send(errors)
+            }
         } else {
             res.sendStatus(HTTP_STATUS.NOT_FOUND_404)
         }

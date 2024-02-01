@@ -6,11 +6,11 @@ export type VideoType = {
     id: number;
     title: string;
     author: string;
-    canBeDownloaded: boolean;
+    canBeDownloaded?: boolean;
     minAgeRestriction?: any;
-    createdAt: string;
-    publicationDate: string;
-    availableResolutions: string[];
+    createdAt?: string;
+    publicationDate?: string;
+    availableResolutions?: string[];
 }
 
 export enum Resolutions {
@@ -24,7 +24,20 @@ export enum Resolutions {
     P2160 = 2160,
 }
 
-export type GetVideosRequestBody = Pick<VideoType, 'title' | 'author' | 'availableResolutions'>
+export type CreateVideoInputModel = {
+    title: string
+    author: string
+    availableResolutions?: string[]
+}
+
+export type UpdateVideoInputModel = {
+	title: string;
+	author: string;
+	availableResolutions?: string[];
+	canBeDownloaded?: boolean;
+	minAgeRestriction?: number;
+	publicationDate?: string;
+}
 
 type ErrorsMessagesType = {
     message: string

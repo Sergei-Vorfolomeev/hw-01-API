@@ -22,24 +22,18 @@ describe(PATHS.videos,  () => {
                 title: '',
                 author: ''
             })
-            .expect(HTTP_STATUS.BAD_REQUEST_400)
-
-        expect(res.body).toEqual({
-            errorsMessages: [
-                {
-                    message: "title is required",
-                    field: "title"
-                },
-                {
-                    message: "author is required",
-                    field: "author"
-                },
-                {
-                    message: "availableResolutions is required",
-                    field: "availableResolutions"
-                },
-            ]
-        })
+            .expect(HTTP_STATUS.BAD_REQUEST_400, {
+                errorsMessages: [
+                    {
+                        message: "title is required",
+                        field: "title"
+                    },
+                    {
+                        message: "author is required",
+                        field: "author"
+                    },
+                ]
+            })
     })
 
     it('get videos without invalid video', async () => {
@@ -89,6 +83,51 @@ describe(PATHS.videos,  () => {
         await request(app)
             .get(`${PATHS.videos}/${createdVideo.id}`)
             .expect(HTTP_STATUS.OK_200, createdVideo)
+    });
+
+    it('update video with wrong id', async () => {
+        await request(app)
+            .put(`${PATHS.videos}/758395`)
+            .send({
+                title: 'Updated Title',
+                author: 'New Author',
+            })
+            .expect(HTTP_STATUS.NOT_FOUND_404)
+    })
+
+    it('update video with wrong input data', async () => {
+        await request(app)
+            .put(`${PATHS.videos}/${createdVideo.id}`)
+            .send({
+                author: 'New Author',
+            })
+            .expect(HTTP_STATUS.BAD_REQUEST_400, {
+                errorsMessages: [
+                    {
+                        message: "title is required",
+                        field: "title"
+                    },
+                ]
+            })
+    })
+
+    it('update created video', async () => {
+        await request(app)
+            .put(`${PATHS.videos}/${createdVideo.id}`)
+            .send({
+                title: 'Updated Title',
+                author: 'New Author',
+            })
+            .expect(HTTP_STATUS.NO_CONTENT_204)
+    })
+
+    it('get updated video by id', async () => {
+       const res = await request(app)
+            .get(`${PATHS.videos}/${createdVideo.id}`)
+            .expect(HTTP_STATUS.OK_200)
+
+        expect(res.body.title).toBe('Updated Title')
+        expect(res.body.author).toBe('New Author')
     });
 
     it('try to delete video with wrong id', async () => {
