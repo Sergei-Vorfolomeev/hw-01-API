@@ -4,6 +4,7 @@ export const fieldValidator = <T extends {}>(data: T, ...args: string[]) => {
     const errors: ErrorsType = {
         errorsMessages: []
     }
+
     for (const arg of args) {
         // @ts-ignore
         if (!data[arg]) {
