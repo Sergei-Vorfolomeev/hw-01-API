@@ -78,4 +78,22 @@ describe(PATHS.videos,  () => {
             .get(PATHS.videos)
             .expect(HTTP_STATUS.OK_200, [createdVideo])
     });
+
+    it('try to delete video with wrong id', async () => {
+        await request(app)
+            .delete(`${PATHS.videos}/6437463`)
+            .expect(HTTP_STATUS.NOT_FOUND_404)
+    })
+
+    it('delete created video', async () => {
+        await request(app)
+            .delete(`${PATHS.videos}/${createdVideo.id}`)
+            .expect(HTTP_STATUS.NO_CONTENT_204)
+    })
+
+    it('get videos with deleted video', async () => {
+        await request(app)
+            .get(PATHS.videos)
+            .expect(HTTP_STATUS.OK_200, [])
+    });
 })

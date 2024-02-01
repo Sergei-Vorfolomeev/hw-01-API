@@ -16,7 +16,7 @@ export const videosRouter = (db: DBType) => {
                 res.status(HTTP_STATUS.BAD_REQUEST_400).send(errors)
             } else {
                 const newVideo = {
-                    id: +Date.now(),
+                    id: Date.now(),
                     title: req.body.title,
                     author: req.body.author,
                     canBeDownloaded: true,
@@ -28,6 +28,18 @@ export const videosRouter = (db: DBType) => {
                 db.videos.push(newVideo)
                 res.status(HTTP_STATUS.CREATED_201).send(newVideo)
             }
+    })
+
+    router.delete('/:id', (req: Request, res: Response) => {
+        const videoId = +req.params.id
+        const video = db.videos.find(v => v.id === videoId)
+        if (video) {
+            const index = db.videos.indexOf(video)
+            db.videos.splice(index, 1)
+            res.sendStatus(HTTP_STATUS.NO_CONTENT_204)
+        } else {
+            res.sendStatus(HTTP_STATUS.NOT_FOUND_404)
+        }
     })
 
     return router
