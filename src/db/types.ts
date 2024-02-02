@@ -13,21 +13,12 @@ export type VideoType = {
     availableResolutions?: string[];
 }
 
-export enum Resolutions {
-    P144 = 144,
-    P240 = 240,
-    P360 = 360,
-    P480 = 480,
-    P720 = 720,
-    P1080 = 721,
-    P1440 = 1440,
-    P2160 = 2160,
-}
-
 export type CreateVideoInputModel = {
     title: string
     author: string
     availableResolutions?: string[]
+    canBeDownloaded?: boolean
+    minAgeRestriction? : number
 }
 
 export type UpdateVideoInputModel = {

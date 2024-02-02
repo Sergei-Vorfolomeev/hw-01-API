@@ -21,18 +21,32 @@ export const videosRouter = (db: DBType) => {
     })
 
     router.post('/', (req: Request<any, VideoType, CreateVideoInputModel>, res: Response<VideoType | ErrorsType>) => {
-        const errors = fieldValidator<CreateVideoInputModel>(req.body, 'title', 'author')
+        const {availableResolutions} = req.body
+        const errors = fieldValidator<CreateVideoInputModel>(req.body)
+            .requiredFields('title', 'author')
+            .maxLength('title', 40)
+            .maxLength('author', 20)
+            .isBoolean('canBeDownloaded')
+            .isNumber('minAgeRestriction')
+            .minMax('minAgeRestriction', 1, 18)
+            .isDate('createdAt')
+            .isDate('publicationDate')
+            .availableResolutions(availableResolutions)
+            .getErrors()
             if (errors.errorsMessages.length) {
                 res.status(HTTP_STATUS.BAD_REQUEST_400).send(errors)
             } else {
+                const currentDate = new Date();
+                const nextDay = new Date(currentDate);
+                nextDay.setDate(currentDate.getDate() + 1);
                 const newVideo = {
                     id: Date.now(),
                     title: req.body.title,
                     author: req.body.author,
-                    canBeDownloaded: true,
+                    canBeDownloaded: false,
                     minAgeRestriction: null,
-                    createdAt: new Date().toISOString(),
-                    publicationDate: new Date().toISOString(),
+                    createdAt: currentDate.toISOString(),
+                    publicationDate: nextDay.toISOString(),
                     availableResolutions: req.body.availableResolutions,
                 }
                 db.videos.push(newVideo)
@@ -52,7 +66,18 @@ export const videosRouter = (db: DBType) => {
     })
 
     router.put('/:id', (req: Request<any, VideoType, UpdateVideoInputModel>, res: Response<VideoType | ErrorsType>) => {
-        const errors = fieldValidator<UpdateVideoInputModel>(req.body, 'title', 'author')
+        const {availableResolutions} = req.body
+        const errors = fieldValidator<UpdateVideoInputModel>(req.body)
+            .requiredFields('title', 'author')
+            .maxLength('title', 40)
+            .maxLength('author', 20)
+            .isBoolean('canBeDownloaded')
+            .isNumber('minAgeRestriction')
+            .minMax('minAgeRestriction', 1, 18)
+            .isDate('createdAt')
+            .isDate('publicationDate')
+            .availableResolutions(availableResolutions)
+            .getErrors()
         const videoId = +req.params.id
         const video = db.videos.find(v => v.id === videoId)
         if (video) {

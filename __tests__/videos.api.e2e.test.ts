@@ -16,11 +16,13 @@ describe(PATHS.videos,  () => {
     });
 
     it('try to create invalid video', async () => {
-        const res = await request(app)
+        await request(app)
             .post(PATHS.videos)
             .send({
                 title: '',
-                author: ''
+                author: '',
+                minAgeRestriction: 25,
+                publicationDate: 1995
             })
             .expect(HTTP_STATUS.BAD_REQUEST_400, {
                 errorsMessages: [
@@ -31,6 +33,14 @@ describe(PATHS.videos,  () => {
                     {
                         message: "author is required",
                         field: "author"
+                    },
+                    {
+                        message: "minAgeRestriction must be from 1 to 18",
+                        field: "minAgeRestriction"
+                    },
+                    {
+                        message: "publicationDate must be string",
+                        field: "publicationDate"
                     },
                 ]
             })
@@ -59,7 +69,7 @@ describe(PATHS.videos,  () => {
             id: expect.any(Number),
             title: "newVideo",
             author: "S.V.",
-            canBeDownloaded: true,
+            canBeDownloaded: false,
             minAgeRestriction: null,
             createdAt: expect.any(String),
             publicationDate: expect.any(String),
@@ -100,12 +110,17 @@ describe(PATHS.videos,  () => {
             .put(`${PATHS.videos}/${createdVideo.id}`)
             .send({
                 author: 'New Author',
+                publicationDate: 1995
             })
             .expect(HTTP_STATUS.BAD_REQUEST_400, {
                 errorsMessages: [
                     {
                         message: "title is required",
                         field: "title"
+                    },
+                    {
+                        message: "publicationDate must be string",
+                        field: "publicationDate"
                     },
                 ]
             })
