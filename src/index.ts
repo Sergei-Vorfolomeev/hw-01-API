@@ -2,8 +2,9 @@ import express from 'express'
 import {videosRouter} from "./routers/videos-router";
 import {db} from "./db/db";
 import {testRouter} from "./routers/test-router";
+import * as process from "process";
 
-const PORT = 4200
+const PORT = process.env.PORT || 4200
 
 export const PATHS = {
     videos: '/videos',
