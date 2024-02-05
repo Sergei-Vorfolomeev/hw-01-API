@@ -2,7 +2,7 @@ import {Request, Response, Router} from "express";
 import {DBType, ErrorsType, CreateVideoInputModel, VideoType, UpdateVideoInputModel} from "../db/types";
 import {HTTP_STATUS} from "../index";
 import {fieldValidator} from "../utils/field-validator";
-import {videoValidator} from "../validators/video-validator";
+import {videoValidator} from "../middlewares/video-validator";
 
 export const videosRouter = (db: DBType) => {
     const router = Router()
