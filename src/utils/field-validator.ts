@@ -13,7 +13,6 @@ export function fieldValidator<T extends object>(body: T) {
                     errors.errorsMessages.push({message: `${key} must be boolean type`, field: key})
                 }
             }
-
             return methods
         },
 

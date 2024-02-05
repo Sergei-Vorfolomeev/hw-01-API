@@ -2,6 +2,7 @@ import {Request, Response, Router} from "express";
 import {DBType, ErrorsType, CreateVideoInputModel, VideoType, UpdateVideoInputModel} from "../db/types";
 import {HTTP_STATUS} from "../index";
 import {fieldValidator} from "../utils/field-validator";
+import {videoValidator} from "../validators/video-validator";
 
 export const videosRouter = (db: DBType) => {
     const router = Router()
@@ -20,38 +21,22 @@ export const videosRouter = (db: DBType) => {
         }
     })
 
-    router.post('/', (req: Request<any, VideoType, CreateVideoInputModel>, res: Response<VideoType | ErrorsType>) => {
-        const {availableResolutions} = req.body
-        const errors = fieldValidator<CreateVideoInputModel>(req.body)
-            .requiredFields('title', 'author')
-            .maxLength('title', 40)
-            .maxLength('author', 20)
-            .isBoolean('canBeDownloaded')
-            .isNumber('minAgeRestriction')
-            .minMax('minAgeRestriction', 1, 18)
-            .isDate('createdAt')
-            .isDate('publicationDate')
-            .availableResolutions(availableResolutions)
-            .getErrors()
-            if (errors.errorsMessages.length) {
-                res.status(HTTP_STATUS.BAD_REQUEST_400).send(errors)
-            } else {
-                const currentDate = new Date();
-                const nextDay = new Date(currentDate);
-                nextDay.setDate(currentDate.getDate() + 1);
-                const newVideo = {
-                    id: Date.now(),
-                    title: req.body.title,
-                    author: req.body.author,
-                    canBeDownloaded: false,
-                    minAgeRestriction: null,
-                    createdAt: currentDate.toISOString(),
-                    publicationDate: nextDay.toISOString(),
-                    availableResolutions: req.body.availableResolutions,
-                }
-                db.videos.push(newVideo)
-                res.status(HTTP_STATUS.CREATED_201).send(newVideo)
-            }
+    router.post('/', videoValidator, (req: Request<any, VideoType, CreateVideoInputModel>, res: Response<VideoType | ErrorsType>) => {
+        const currentDate = new Date();
+        const nextDay = new Date(currentDate);
+        nextDay.setDate(currentDate.getDate() + 1);
+        const newVideo = {
+            id: Date.now(),
+            title: req.body.title,
+            author: req.body.author,
+            canBeDownloaded: false,
+            minAgeRestriction: null,
+            createdAt: currentDate.toISOString(),
+            publicationDate: nextDay.toISOString(),
+            availableResolutions: req.body.availableResolutions,
+        }
+        db.videos.push(newVideo)
+        res.status(HTTP_STATUS.CREATED_201).send(newVideo)
     })
 
     router.delete('/:id', (req: Request, res: Response) => {
@@ -65,28 +50,13 @@ export const videosRouter = (db: DBType) => {
         }
     })
 
-    router.put('/:id', (req: Request<any, VideoType, UpdateVideoInputModel>, res: Response<VideoType | ErrorsType>) => {
-        const {availableResolutions} = req.body
-        const errors = fieldValidator<UpdateVideoInputModel>(req.body)
-            .requiredFields('title', 'author')
-            .maxLength('title', 40)
-            .maxLength('author', 20)
-            .isBoolean('canBeDownloaded')
-            .isNumber('minAgeRestriction')
-            .minMax('minAgeRestriction', 1, 18)
-            .isDate('createdAt')
-            .isDate('publicationDate')
-            .availableResolutions(availableResolutions)
-            .getErrors()
+    router.put('/:id', videoValidator, (req: Request<any, VideoType, UpdateVideoInputModel>, res: Response<VideoType | ErrorsType>) => {
+        const { title, author } = req.body
         const videoId = +req.params.id
         const video = db.videos.find(v => v.id === videoId)
         if (video) {
-            if (!errors.errorsMessages.length) {
-                Object.assign(video, req.body)
-                res.sendStatus(HTTP_STATUS.NO_CONTENT_204)
-            } else {
-                res.status(HTTP_STATUS.BAD_REQUEST_400).send(errors)
-            }
+            Object.assign(video, {title, author})
+            res.sendStatus(HTTP_STATUS.NO_CONTENT_204)
         } else {
             res.sendStatus(HTTP_STATUS.NOT_FOUND_404)
         }
